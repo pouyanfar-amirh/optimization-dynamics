@@ -13,7 +13,7 @@ class SimpleCNN(nn.Module):
         self.flatten = nn.Flatten()
 
         self.fc1 = nn.Linear(in_features=64 * 7 * 7, out_features=64)
-        self.fc2 = nn.Linear(in_features=64, out_features=10)
+        self.fc2 = nn.Linear(in_features=64, out_features=num_classes)
 
     def forward(self, x):
 

@@ -3,24 +3,26 @@ from src.models.SimpleCNN import SimpleCNN
 from src.datasets import mnist_loader
 import torch.nn.functional as F
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+def evaluate_mnist():
 
-_, _, test_loader = mnist_loader(batch_size=32)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-model = SimpleCNN(input_channels=1, num_classes=10).to(device)
-model.load_state_dict(torch.load('results/SimpleCNN.pth'))
-model.eval()
+    _, _, test_loader = mnist_loader(batch_size=32)
 
-correct = 0
-total = 0
+    model = SimpleCNN(input_channels=1, num_classes=10).to(device)
+    model.load_state_dict(torch.load('results/SimpleCNN.pth'))
+    model.eval()
 
-with torch.no_grad():
-    for images, labels in test_loader:
-        images, labels = images.to(device), labels.to(device)
-        outputs = model(images)
-        predicted = outputs.argmax(dim=1)
-        correct += (predicted == labels).sum().item()
-        total += labels.size(0)
+    correct = 0
+    total = 0
 
-accuracy = correct / total
-print(f'Test accuracy = {accuracy * 100:.2f}%')
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            predicted = outputs.argmax(dim=1)
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+
+    accuracy = correct / total
+    print(f'Test accuracy = {accuracy * 100:.2f}%')
