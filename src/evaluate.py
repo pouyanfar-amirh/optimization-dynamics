@@ -1,16 +1,23 @@
 import torch
 from src.models.SimpleCNN import SimpleCNN
-from src.datasets import mnist_loader
+from src.datasets.mnist_loader import mnist_loader
+from src.datasets.cifar_loader import cifar_loader
 import torch.nn.functional as F
 
-def evaluate_mnist():
+def evaluate_SimpleCNN_test(dataset='mnist', batch_size=32):
+
+    if dataset != 'mnist' or dataset != 'cifar':
+        raise ValueError('Invalid dataset for evaluating the model on test set')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    _, _, test_loader = mnist_loader(batch_size=32)
+    if dataset == 'mnist':
+        _, _, test_loader = mnist_loader(batch_size=batch_size)
+    else:
+        _, _, test_loader = cifar_loader(batch_size=batch_size)
 
     model = SimpleCNN(input_channels=1, num_classes=10).to(device)
-    model.load_state_dict(torch.load('results/SimpleCNN.pth'))
+    model.load_state_dict(torch.load(f'../results/SimpleCNN_{dataset}.pth'))
     model.eval()
 
     correct = 0
@@ -26,3 +33,4 @@ def evaluate_mnist():
 
     accuracy = correct / total
     print(f'Test accuracy = {accuracy * 100:.2f}%')
+

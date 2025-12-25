@@ -1,14 +1,24 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
+import os
 
 from src.models.SimpleCNN import SimpleCNN
-from src.datasets import mnist_loader
+from src.datasets.mnist_loader import mnist_loader
+from src.datasets.cifar_loader import cifar_loader
+from src.utils import plot_loss
 
-def train_SimpleCNN(num_epochs=10, batch_size=32, optimization='SGD', learning_rate=0.001):
+def train_SimpleCNN(num_epochs=10, batch_size=32, optimization='SGD', learning_rate=0.001, dataset='mnist'):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    train_loader, val_loader, test_loader = mnist_loader(batch_size=batch_size)
+
+    if dataset == 'mnist':
+        train_loader, val_loader, test_loader = mnist_loader(batch_size=batch_size)
+    elif dataset == 'cifar':
+        train_loader, val_loader, test_loader = cifar_loader(batch_size=batch_size)
+    else:
+        raise ValueError('Invalid dataset')
 
     model = SimpleCNN(input_channels=1, num_classes=10).to(device)
     criterion = nn.CrossEntropyLoss()
@@ -24,6 +34,9 @@ def train_SimpleCNN(num_epochs=10, batch_size=32, optimization='SGD', learning_r
         optimizer = optim.Adagrad(model.parameters(), lr=learning_rate)
     else:
         raise ValueError('Invalid optimization type')
+
+
+    loss_values = []
 
     for epoch in range(num_epochs):
 
@@ -43,7 +56,14 @@ def train_SimpleCNN(num_epochs=10, batch_size=32, optimization='SGD', learning_r
 
             total_loss += loss.item() * images.size(0)
             total_examples += images.size(0)
+        
+
+        epoch_loss = total_loss / total_examples
+        loss_values.append(epoch_loss)
 
         print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {total_loss/total_examples:.4f}')
 
-    torch.save(model.state_dict(), 'results/SimpleCNN.pth')
+    plot_loss(loss_values)
+
+    os.makedirs('../results', exist_ok=True)
+    torch.save(model.state_dict(), f'../results/SimpleCNN_{dataset.lower}.pth')
