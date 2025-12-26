@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-class SimpleCNN(nn.Module):
+class MNISTSimpleCNN(nn.Module):
 
     def __init__(self, input_channels=1, num_classes=10): # by default for MNIST
         super().__init__()

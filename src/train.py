@@ -4,7 +4,8 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import os
 
-from src.models.SimpleCNN import SimpleCNN
+from src.models.MNISTSimpleCNN import MNISTSimpleCNN
+from src.models.CIFARSimpleCNN import CIFARSimpleCNN
 from src.datasets.mnist_loader import mnist_loader
 from src.datasets.cifar_loader import cifar_loader
 from src.utils import plot_loss
@@ -15,12 +16,14 @@ def train_SimpleCNN(num_epochs=10, batch_size=32, optimization='SGD', learning_r
 
     if dataset == 'mnist':
         train_loader, val_loader, test_loader = mnist_loader(batch_size=batch_size)
+        model = MNISTSimpleCNN(input_channels=1, num_classes=10).to(device)
     elif dataset == 'cifar':
         train_loader, val_loader, test_loader = cifar_loader(batch_size=batch_size)
+        model = CIFARSimpleCNN(input_channels=3, num_classes=10).to(device)
     else:
         raise ValueError('Invalid dataset')
 
-    model = SimpleCNN(input_channels=1, num_classes=10).to(device)
+    
     criterion = nn.CrossEntropyLoss()
 
     optimization = optimization.lower()
